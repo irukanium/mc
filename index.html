@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Stronghold Triangulator</title>
+
+<style>
+body{
+background:#1b1b1b;
+color:#eee;
+font-family:monospace;
+margin:0;
+}
+
+h1{
+text-align:center;
+color:#55ff55;
+text-shadow:2px 2px #000;
+}
+
+.main{
+display:flex;
+justify-content:center;
+gap:60px;
+margin-top:30px;
+padding:20px;
+}
+
+.left{
+width:250px;
+}
+
+.right{
+min-width:250px;
+font-size:18px;
+line-height:1.6;
+}
+
+.tabs{
+display:flex;
+}
+
+.tab{
+padding:10px 20px;
+background:#333;
+border:1px solid #555;
+cursor:pointer;
+}
+
+.tab.active{
+background:#55aa33;
+}
+
+.panel{
+display:none;
+margin-top:15px;
+}
+
+.panel.active{
+display:block;
+}
+
+input{
+width:120px;
+padding:6px;
+margin:6px 0;
+background:#111;
+color:#0f0;
+border:1px solid #444;
+}
+
+button{
+margin-top:20px;
+padding:12px 25px;
+font-size:16px;
+background:#55aa33;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+/* スマホ対応 */
+@media (max-width:700px){
+.main{
+flex-direction:column;
+align-items:center;
+gap:30px;
+}
+
+.left{
+width:100%;
+text-align:center;
+}
+
+.right{
+width:100%;
+text-align:center;
+}
+
+.tabs{
+justify-content:center;
+}
+}
+</style>
+</head>
+
+<body>
+
+<h1>エンド要塞特定ツール</h1>
+エンダーアイを投げた地点の座標とYawを入力すると、三角測量によって要塞の推定座標を計算するツールです。まず、エンダーアイを1回投げて現在の位置を確認します。その後、最初の座標からおおよそ100ブロックほど離れた場所で2回目のエンダーアイを投げると、要塞のおおよその位置を推定できます。
+3投目は必須ではありませんが、追加すると推定の精度が少し上がるかもしれません。
+
+<div class="main">
+
+<div class="left">
+
+<div class="tabs">
+<div class="tab active" onclick="openTab(0)">1投目</div>
+<div class="tab" onclick="openTab(1)">2投目</div>
+<div class="tab" onclick="openTab(2)">3投目</div>
+</div>
+
+<div class="panel active">
+1投目　必須<br>
+<input id="x1" placeholder="X"><br>
+<input id="z1" placeholder="Z"><br>
+<input id="yaw1" placeholder="Yaw">
+</div>
+
+<div class="panel">
+2投目　必須<br>
+<input id="x2" placeholder="X"><br>
+<input id="z2" placeholder="Z"><br>
+<input id="yaw2" placeholder="Yaw">
+</div>
+
+<div class="panel">
+3投目　任意<br>
+<input id="x3" placeholder="X"><br>
+<input id="z3" placeholder="Z"><br>
+<input id="yaw3" placeholder="Yaw">
+</div>
+
+<button onclick="calc()">特定する</button>
+
+</div>
+
+<div class="right" id="result">
+</div>
+
+</div>
+
+<script>
+function openTab(n){
+let tabs=document.querySelectorAll(".tab")
+let panels=document.querySelectorAll(".panel")
+tabs.forEach(t=>t.classList.remove("active"))
+panels.forEach(p=>p.classList.remove("active"))
+tabs[n].classList.add("active")
+panels[n].classList.add("active")
+}
+
+function getDir(yaw){
+let r=yaw*Math.PI/180
+return{
+dx:-Math.sin(r),
+dz:Math.cos(r)
+}
+}
+
+// 3桁ごとにカンマ区切り、負の数対応
+function formatNum(n){
+let neg = n < 0
+let s = Math.abs(Math.round(n)).toString()
+let result = ""
+while(s.length > 3){
+result = "," + s.slice(-3) + result
+s = s.slice(0, -3)
+}
+result = s + result
+return neg ? "-" + result : result
+}
+
+function intersect(x1,z1,dx1,dz1,x2,z2,dx2,dz2){
+let denom=dx1*dz2-dz1*dx2
+if(Math.abs(denom)<0.00001)return null
+let t=((x2-x1)*dz2-(z2-z1)*dx2)/denom
+return{
+x:x1+dx1*t,
+z:z1+dz1*t
+}
+}
+
+function calc(){
+let x1=parseFloat(document.getElementById("x1").value)
+let z1=parseFloat(document.getElementById("z1").value)
+let yaw1=parseFloat(document.getElementById("yaw1").value)
+
+let x2=parseFloat(document.getElementById("x2").value)
+let z2=parseFloat(document.getElementById("z2").value)
+let yaw2=parseFloat(document.getElementById("yaw2").value)
+
+let x3=parseFloat(document.getElementById("x3").value)
+let z3=parseFloat(document.getElementById("z3").value)
+let yaw3=parseFloat(document.getElementById("yaw3").value)
+
+if(isNaN(x1)||isNaN(z1)||isNaN(yaw1)||isNaN(x2)||isNaN(z2)||isNaN(yaw2)){
+alert("1投目と2投目は必須です")
+return
+}
+
+let d1=getDir(yaw1)
+let d2=getDir(yaw2)
+
+let p12=intersect(x1,z1,d1.dx,d1.dz,x2,z2,d2.dx,d2.dz)
+if(!p12){
+alert("角度が平行です")
+return
+}
+
+let sx=p12.x
+let sz=p12.z
+
+if(!isNaN(x3)&&!isNaN(z3)&&!isNaN(yaw3)){
+let d3=getDir(yaw3)
+let p13=intersect(x1,z1,d1.dx,d1.dz,x3,z3,d3.dx,d3.dz)
+let p23=intersect(x2,z2,d2.dx,d2.dz,x3,z3,d3.dx,d3.dz)
+if(p13&&p23){
+sx=(p12.x+p13.x+p23.x)/3
+sz=(p12.z+p13.z+p23.z)/3
+}
+}
+
+let netherX=Math.round(sx/8)
+let netherZ=Math.round(sz/8)
+
+let dist1=Math.hypot(sx-x1,sz-z1)
+let dist2=Math.hypot(sx-x2,sz-z2)
+
+let text=
+"座標 : X "+formatNum(sx)+" Z "+formatNum(sz)+
+"<br>ネザー座標 : X "+formatNum(netherX)+" Z "+formatNum(netherZ)+
+"<br><br>1投目からの距離 : "+formatNum(dist1)+
+"<br>2投目からの距離 : "+formatNum(dist2)
+
+if(!isNaN(x3)&&!isNaN(z3)){
+let dist3=Math.hypot(sx-x3,sz-z3)
+text+="<br>3投目からの距離 : "+formatNum(dist3)
+}
+
+document.getElementById("result").innerHTML=text
+}
+</script>
+
+</body>
+</html>
