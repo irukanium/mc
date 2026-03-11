@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stronghold Triangulator</title>
+<link rel="icon" type="image/png" href="icon.png">
+<title>エンド要塞特定ツール</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
@@ -110,10 +111,8 @@ justify-content:center;
 </head>
 
 <body>
-
-<h1>エンド要塞特定ツール</h1>
 エンダーアイを投げた地点の座標とYawを入力すると、三角測量によって要塞の推定座標を計算するツールです。まず、エンダーアイを1回投げて現在の位置を確認します。その後、最初の座標からおおよそ100ブロックほど離れた場所で2回目のエンダーアイを投げると、要塞のおおよその位置を推定できます。
-3投目は必須ではありませんが、追加すると推定の精度が少し上がるかもしれません。
+3投目は必須ではありませんが、追加すると推定の精度が少し上がるかもしれません。Java版と統合版どちらにも対応しています。
 
 <div class="main">
 
@@ -133,7 +132,8 @@ justify-content:center;
 </div>
 
 <div class="panel">
-2投目　<span color="red">必須</span> / 1投目から最低100マスは離れてください<br>
+2投目　<span color="red">必須</span>
+<br>1投目から最低100マスは離れてください<br>
 <input id="x2" placeholder="X"><br>
 <input id="z2" placeholder="Z"><br>
 <input id="yaw2" placeholder="Yaw">
