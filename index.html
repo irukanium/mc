@@ -11,40 +11,80 @@
 
 <title>エンド要塞探してる？</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="style.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="icon" href="icon.png">
+
 </head>
 <body>
 
-<h1>エンド要塞探してる？</h1>
-エンド要塞を楽して探したいけどChunk Finderを使うのはズルいかなって思ってる人におすすめのツールです。プレイヤーとエンダーアイの位置だけでエンド要塞の座標を計算で求めれます！
-<hr>
-<label>計算方法　</label>
-<select id="methodSelect">
-  <option value="yaw">Yawベース</option>
-  <option value="xz">Eyeベース</option>
-</select>
+<div id="head">
+<span id="time"></span>
+</div>
 
-<div id="methodDescription"></div>
+<div id="select">測量方法:
+<div class="selector-box">
+    <input type="radio" id="yaw" name="mode" checked>
+    <label for="yaw" class="mode-btn">
+        <div class="icon-yaw"></div>
+        <span class="label-text">Yawベース</span>
+    </label>
+
+    <input type="radio" id="eye" name="mode">
+    <label for="eye" class="mode-btn">
+        <div class="icon-eye"></div>
+        <span class="label-text">Eyeベース</span>
+    </label>
+    </div>
+    <br>
+    <div id="methodDescription"></div>
+  </div>
+
 <br>
 <div class="main">
 <div class="left">
     <div id="throws"></div>
-    <button onclick="addThrow()">投目を追加</button>
-    <button onclick="calc()">特定する</button>
+    <button onclick="addThrow()" class="throwBtn">測量を追加 +</button>  <button onclick="resetAll()" class="resetBtn">リセット <img src="delete_red.png"></button>
+    <button onclick="calc()" class="calcBtn">測量する <img src="eyeender.png"></button>
 <br>
-    <button onclick="resetAll()" style="background:#cc3333;">リセット</button>
 </div>
 
 <div class="right">
     <div id="result"></div>
-    <button id="copyBtn" class="copyBtn" onclick="copyCoord()" style="display:none">座標をコピー</button>
     <canvas id="mapCanvas" width="400" height="400"></canvas>
+<button id="saveBtn" onclick="saveMapImage()">保存<img src="save.png"></button>
 </div>
+</div>
+
+<div id="advice">
+  <h2>座標のペースト機能について</h2>
+  <div class="method-container">
+    <div class="method-item">
+      <strong>Java版</strong>
+      <span><code>F3 + C</code> で座標と角度をコピー</span>
+    </div>
+    <div class="method-item">
+      <strong>統合版</strong>
+      <span><code>Ctrl + Alt + C</code> で座標をコピー</span>
+    </div>
+  </div>
+  <p class="method-note">コピー後、各項目のペーストボタンを押すと自動入力されます。</p>
+
+  <h2>測量の注意点</h2>
+  <ul>
+    <li>最低100マス以上間隔をあけて測量してください。</li>
+    <li>座標やYawを入力する際は、小数点まで正確に入力してください。</li>
+    <li>チャンク内座標の4, 4にエンド要塞の入口が生成されます。</li>
+    <li>XかZの絶対値が約400以下の場所は、要塞が生成される確率は低いです。</li>
+    <li>黄色の円は誤差の範囲を示しますが、円の範囲内に必ず要塞が存在するとは限りません。</li>
+  </ul>
+  
+  <p class="footer-note">※ 実際のマップでの測量結果は参考としてご利用ください。</p>
+  
+  <div class="credit">
+    Created alongside Gemini / <a href="https://x.com/irukan2891" target="_blank" rel="noopener noreferrer">irukan2891</a>
+  </div>
 </div>
 
 <div id="notifications"></div>
